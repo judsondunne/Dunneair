@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dunne Air</title>
+    <style>
+        /* Your existing styles */
+    </style>
+</head>
+<body>
+    <h1>Dunne Air</h1>
+     <button id="start-button" class="start-button">Start Listening</button>
+    
+    <p>
+        <button id="talk-button" class="talk-button">Press the button to speak</button>
+    </p>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let mediaRecorder;
+        const button = document.getElementById('talk-button');
+        button.addEventListener('click', toggleRecording);
+        let isRecording = false; 
+
+        async function getLocalAudioStream() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                return stream;
+            } catch (error) {
+                console.error('Error accessing the microphone:', error);
+            }
+        }
+
+        async function toggleRecording() {
+            isRecording = !isRecording;
+
+            if (isRecording) {
+                const stream = await getLocalAudioStream();
+                if (stream) {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+
+                    mediaRecorder.ondataavailable = async (event) => {
+                        if (event.data.size > 0) {
+                            const arrayBuffer = await event.data.arrayBuffer();
+                            socket.emit('stream', arrayBuffer);
+                            console.log('Sending stream data to the server'); // Debug log
+                        }
+                    };
+
+                    console.log('Recording started');
+                    button.classList.add('recording');
+                    button.textContent = 'Broadcasting... Click to stop';
+                }
+            } else {
+                if (mediaRecorder) {
+                    mediaRecorder.stop();
+                    console.log('Recording stopped');
+                    button.classList.remove('recording');
+                    button.textContent = 'Press the button to speak';
+                }
+            }
+        }
+
+        socket.on('stream', (arrayBuffer) => {
+            console.log('Received audio stream'); // Debug log
+            const audioBlob = new Blob([arrayBuffer]);
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            audio.play().catch((e) => console.error('Error playing audio:', e));
+        });
+    </script>
+</body>
+</html>

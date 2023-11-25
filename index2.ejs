@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dunne Air</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .start-button, .talk-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .start-button:hover, .talk-button:hover {
+            background-color: #0056b3;
+        }
+
+        .active-users {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .active-users h2 {
+            margin-top: 0;
+        }
+
+        .active-users ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .active-users li {
+            background: #e9ecef;
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        /* Additional styling for recording state */
+        .recording {
+            background-color: #dc3545;
+        }
+
+        .recording:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dunne Air</h1>
+    <button id="start-button" class="start-button">Start Listening</button>
+    
+    <p>
+        <button id="talk-button" class="talk-button">Press the button to speak</button>
+    </p>
+
+    <div class="active-users">
+        <h2>Active Users</h2>
+        <ul>
+            <% activeUsers
+                .filter(([userId, userData]) => userData.active)
+                .forEach(([userId, userData]) => { %>
+                    <li><%= userData.displayName %></li>
+            <% }); %>
+        </ul>
+    </div>
